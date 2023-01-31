@@ -165,5 +165,7 @@ app.listen(5000, () => {
 });
 
 //create projects
-//update specific projects
-//
+//update specific project
+//get all projects
+//get specific project
+// delete specific project
