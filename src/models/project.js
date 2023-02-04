@@ -21,6 +21,11 @@ const projectSchema = Schema(
       type: String,
       trim: true,
     },
+    status: {
+      type: String,
+      default: "in-progress",
+      enum: ["in-progress", "completed"],
+    },
   },
   { timestamps: true }
 );

@@ -12,5 +12,6 @@ const dbConnect = () => {
       console.log(err);
     });
 };
+mongoose.set("strictQuery", true);
 
 module.exports = dbConnect;
