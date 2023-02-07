@@ -10,15 +10,18 @@ dbConnect();
 
 app.post("/", async (req, res) => {
   try {
-    const { name, desc, url, githubLink } = req.body;
-    if (!name & !desc & !githubLink) {
-      throw Error("name, description and github link cannot be left blank");
+    const { name, desc, url, githubLink, tags } = req.body;
+    if (!name || !desc || !githubLink || !tags) {
+      throw Error(
+        "name, description, tags and github link cannot be left blank"
+      );
     } else {
-      const details = new Project({
+      const details = await new Project({
         name,
         desc,
         url,
         githubLink,
+        tags,
       }).save();
       res.status(201).json({
         status: "success",
@@ -41,7 +44,7 @@ app.patch("/:pID", async (req, res) => {
       res.status(400);
       throw Error("invalid project id");
     } else {
-      const { name, desc, url, githubLink } = req.body;
+      const { name, desc, url, githubLink, tags } = req.body;
       const project = Project.findById(pID);
       if (!project) {
         res.status(404);
@@ -52,6 +55,7 @@ app.patch("/:pID", async (req, res) => {
           desc: desc || project.desc,
           url: url || project.url,
           githubLink: githubLink || project.githubLink,
+          tags: tags || project.tags,
         };
         const projectUpdate = await Project.findByIdAndUpdate(
           pID,
@@ -81,7 +85,7 @@ app.patch("/:pID", async (req, res) => {
 app.get("/", async (req, res) => {
   try {
     const projects = await Project.find().select(["-__v"]);
-    if (!projects) {
+    if (projects.length == 0) {
       res.status(200).json({
         status: "success",
         msg: "no projects found",
@@ -90,7 +94,7 @@ app.get("/", async (req, res) => {
     } else {
       res.status(200).json({
         status: "success",
-        msg: "projects found",
+        msg: "project(s) found",
         data: projects,
       });
     }
@@ -160,6 +164,31 @@ app.delete("/:pID", async (req, res) => {
     });
   }
 });
+
+app.delete("/", async (req, res) => {
+  try {
+    const projects = await Project.find();
+    if (projects.length == 0) {
+      res.status(404);
+      throw Error(`${projects.length} projects found`);
+    } else {
+      if (await Project.deleteMany()) {
+        res.status(200).json({
+          status: "success",
+          msg: "All projects deleted successfully",
+        });
+      } else {
+        res.status(400);
+        throw Error("could not delete projects");
+      }
+    }
+  } catch (error) {
+    res.json({
+      status: "error",
+      msg: error.message,
+    });
+  }
+});
 app.listen(5000, () => {
   console.log(`Running on port 5000`);
 });
@@ -169,3 +198,4 @@ app.listen(5000, () => {
 //get all projects
 //get specific project
 // delete specific project
+//delete all projects

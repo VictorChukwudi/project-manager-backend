@@ -26,6 +26,9 @@ const projectSchema = Schema(
       default: "in-progress",
       enum: ["in-progress", "completed"],
     },
+    tags: {
+      type: Array,
+    },
   },
   { timestamps: true }
 );
