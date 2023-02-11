@@ -24,7 +24,7 @@ const projectSchema = Schema(
     status: {
       type: String,
       default: "in-progress",
-      enum: ["in-progress", "completed"],
+      enum: ["in-progress", "completed", "working"],
     },
     tags: {
       type: Array,

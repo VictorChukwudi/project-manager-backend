@@ -2,15 +2,24 @@ const express = require("express");
 const ObjectId = require("mongoose").Types.ObjectId;
 const dbConnect = require("./src/config/db");
 const Project = require("./src/models/project");
+const cors = require("cors");
 const app = express();
 
+dbConnect();
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-dbConnect();
+
+// app.use((_req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "*");
+
+//   next();
+// });
 
 app.post("/", async (req, res) => {
   try {
-    const { name, desc, url, githubLink, tags } = req.body;
+    const { name, desc, url, githubLink, tags, status } = req.body;
     if (!name || !desc || !githubLink || !tags) {
       throw Error(
         "name, description, tags and github link cannot be left blank"
@@ -22,6 +31,7 @@ app.post("/", async (req, res) => {
         url,
         githubLink,
         tags,
+        status,
       }).save();
       res.status(201).json({
         status: "success",
@@ -44,7 +54,7 @@ app.patch("/:pID", async (req, res) => {
       res.status(400);
       throw Error("invalid project id");
     } else {
-      const { name, desc, url, githubLink, tags } = req.body;
+      const { name, desc, url, githubLink, tags, status } = req.body;
       const project = Project.findById(pID);
       if (!project) {
         res.status(404);
@@ -56,6 +66,7 @@ app.patch("/:pID", async (req, res) => {
           url: url || project.url,
           githubLink: githubLink || project.githubLink,
           tags: tags || project.tags,
+          status: status || project.status,
         };
         const projectUpdate = await Project.findByIdAndUpdate(
           pID,
